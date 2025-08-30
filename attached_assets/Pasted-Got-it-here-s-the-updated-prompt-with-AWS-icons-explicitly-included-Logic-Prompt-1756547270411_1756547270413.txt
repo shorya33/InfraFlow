@@ -1,0 +1,73 @@
+Got it ✅ — here’s the **updated prompt** with AWS icons explicitly included:
+
+---
+
+# 🎨 Logic Prompt: Node Styling like n8n + Dark Mode + AWS Icons
+
+## 🔹 Node Styling (like n8n UI)
+
+1. Each **resource node** should look visually like **n8n workflow nodes**:
+
+   * Rounded rectangle with soft shadows.
+   * **AWS Service Icon (SVG)** on the left, taken from the official [AWS Architecture Icons](https://aws.amazon.com/architecture/icons/).
+   * Node title in bold (e.g., `EC2 Instance`, `S3 Bucket`).
+   * Subtext showing details (e.g., `Instance Type: t2.micro`).
+   * Color-coding by category:
+
+     * Compute (EC2, Lambda) → Blue
+     * Storage (S3, EBS) → Orange
+     * Networking (VPC, Subnet, SG) → Green
+     * IAM & Security → Purple
+   * Hover effect → slight glow border.
+   * When selected → highlight border in primary theme color.
+
+2. Nodes must support **drag & drop** creation from the left sidebar (like n8n palette).
+
+3. Nodes are connected with **curved edges** (smooth links) just like n8n workflows.
+
+---
+
+## 🔹 Dark Mode in Settings
+
+1. Add a **Settings page** with toggle for **Dark Mode**.
+2. When Dark Mode is enabled:
+
+   * Background → Dark grey (#1e1e1e).
+   * Nodes → Dark surfaces (#2c2c2c) with light text.
+   * Grid lines → subtle (#444).
+   * Edges → lighter shade for contrast.
+   * AWS icons should **remain colored** (not inverted) for recognition.
+3. When Light Mode is enabled:
+
+   * Background → White.
+   * Nodes → Light cards (#f5f5f5).
+   * Grid lines → subtle grey (#ddd).
+4. Preference must be saved in **local storage** so the theme persists across reloads.
+
+---
+
+## 🔹 AWS Icons Integration
+
+1. Use the **official AWS Architecture Icons (SVG)** for each service node.
+2. Icons should be stored in `/assets/icons/aws/` or fetched via a CDN.
+3. Each resource type maps to its AWS icon, for example:
+
+   ```json
+   {
+     "aws_instance": "icons/aws/ec2.svg",
+     "aws_s3_bucket": "icons/aws/s3.svg",
+     "aws_vpc": "icons/aws/vpc.svg",
+     "aws_subnet": "icons/aws/subnet.svg",
+     "aws_iam_role": "icons/aws/iam.svg"
+   }
+   ```
+4. The UI should automatically assign the correct icon when a node is created.
+5. If no AWS icon is found, fall back to a **default Lucide icon**.
+
+---
+
+⚡ This ensures the UI looks like **n8n**, supports **dark mode**, and uses **official AWS icons** for a professional cloud infrastructure designer.
+
+---
+
+Do you want me to also extend the prompt so **VPC/Subnet act as containers** (where EC2, RDS, etc. nodes can be dropped inside) with AWS icons still intact?

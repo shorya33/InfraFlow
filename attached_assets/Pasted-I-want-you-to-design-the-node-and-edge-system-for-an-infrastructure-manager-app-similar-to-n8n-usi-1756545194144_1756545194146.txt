@@ -1,0 +1,81 @@
+I want you to design the node and edge system for an infrastructure manager app, similar to n8n, using React Flow.
+
+⚡ Requirements for Nodes:
+1. **Node Types**
+   - `aws_instance`
+   - `aws_s3_bucket`
+   - `aws_vpc`
+   - `iam_role`
+   - More can be added later.
+   
+2. **Node UI**
+   - Each node should look like a card with:
+     - Icon (Lucide-react)
+     - Title (e.g. "AWS EC2 Instance")
+     - Small status badge (Gray = not applied, Blue pulsing = creating, Green = created, Red = failed)
+   - Should be draggable & movable around the canvas.
+   - Each node stores JSON `data` for configuration, e.g.:
+     ```json
+     {
+       "type": "aws_instance",
+       "name": "web_server",
+       "params": {
+         "InstanceType": "t2.micro",
+         "AMI": "ami-123456",
+         "KeyName": "my-key"
+       }
+     }
+     ```
+
+3. **Node Ports**
+   - Nodes have **input and output handles** for edges.
+   - Input = dependencies (e.g., EC2 needs VPC)
+   - Output = what this resource can connect to.
+   - Example: `aws_vpc` → `aws_instance` (instance must live in VPC)
+
+⚡ Requirements for Edges:
+1. **Connections**
+   - Drag from one node’s output handle to another node’s input handle.
+   - Connections represent **resource dependency** (like Terraform `depends_on`).
+   - Only valid connections should be allowed:
+     - `aws_vpc` → `aws_instance`
+     - `iam_role` → `aws_instance`
+     - `aws_s3_bucket` → (no required dependency, but can connect to EC2 for logging)
+
+2. **Edge UI**
+   - Edges are curved lines with arrows.
+   - When selected, edge highlights.
+   - Show tooltip: “Dependency: EC2 depends on VPC”
+
+3. **Edge Rules**
+   - Prevent duplicate connections between same nodes.
+   - Prevent cycles (no circular dependencies).
+   - If a connection is invalid, show error toast.
+
+⚡ Behavior:
+1. **Selecting Node**
+   - Opens the right-hand sidebar config panel with editable fields.
+   - Changes update node `data` live.
+
+2. **Deleting Node**
+   - Automatically removes connected edges.
+
+3. **JSON Export/Import**
+   - Entire graph (nodes + edges) can be saved as JSON:
+     ```json
+     {
+       "nodes": [
+         { "id": "1", "type": "aws_vpc", "data": {...}, "position": {"x":100,"y":150} },
+         { "id": "2", "type": "aws_instance", "data": {...}, "position": {"x":400,"y":150} }
+       ],
+       "edges": [
+         { "id": "e1-2", "source": "1", "target": "2" }
+       ]
+     }
+     ```
+   - Import should restore graph layout + configs.
+
+⚡ Extra (nice-to-have):
+- Nodes should have color borders matching status (gray/blue/green/red).
+- Edge lines should animate (dashed moving) while node is in "creating" state.
+- Zoom + pan support on canvas.

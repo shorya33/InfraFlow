@@ -1,0 +1,62 @@
+I want to extend the React Flow based infrastructure UI so that it supports container nodes (like draw.io) for VPCs and subnets.
+
+⚡ Requirements:
+1. **Container Nodes**
+   - `aws_vpc` should be a container node.
+   - Inside a VPC, I can drag `aws_subnet` nodes.
+   - Inside a subnet, I can drag services like `aws_instance`, `aws_rds`, `aws_elb`.
+   - Containers should visually resize to fit their children.
+
+2. **Subnet Node**
+   - Subnet node has two modes: `Public` or `Private`.
+   - User can toggle subnet type via right-hand config panel.
+   - Public subnet border color = green, Private subnet border = blue.
+   - Subnets can only exist inside a VPC container.
+
+3. **Service Nodes**
+   - `aws_instance`, `aws_rds`, `aws_elb` nodes can only be dragged **inside subnets**.
+   - Each service node shows AWS icon + status badge.
+   - When moved out of subnet, the connection should be invalid and prevented.
+
+4. **Hierarchy Rules**
+   - VPC contains Subnets.
+   - Subnet contains Services.
+   - Prevent placing a subnet outside a VPC.
+   - Prevent placing a service outside a subnet.
+   - Dragging rules should enforce this automatically.
+
+5. **Edges**
+   - Edges still represent dependencies (e.g., EC2 → IAM Role).
+   - But edges must respect hierarchy:
+     - EC2 inside Subnet still connects via subnet’s VPC context.
+     - If subnet is deleted, its children and edges are also removed.
+
+6. **UI Behaviors**
+   - Containers (VPC/Subnet) should collapse/expand to hide/show children.
+   - Dragging a container moves all children with it.
+   - Grid background with snap-to-grid alignment.
+   - Nodes inside should auto-arrange neatly inside the container.
+
+7. **Export JSON**
+   - Export should maintain hierarchy in JSON:
+     ```json
+     {
+       "nodes": [
+         { "id": "vpc1", "type": "aws_vpc", "data": {...}, "children": ["subnet1","subnet2"] },
+         { "id": "subnet1", "type": "aws_subnet", "parent": "vpc1", "data": {"subnet_type":"private"}, "children":["ec2_1"] },
+         { "id": "ec2_1", "type": "aws_instance", "parent": "subnet1", "data": {...} }
+       ],
+       "edges": [
+         { "id": "e1", "source": "ec2_1", "target": "iam_role_1" }
+       ]
+     }
+     ```
+
+8. **Import JSON**
+   - Should restore the hierarchy (containers + children + edges).
+
+⚡ Extra:
+- VPC container = light gray border with label "VPC".
+- Subnet container = card with colored header (green for public, blue for private).
+- Services = normal draggable nodes with AWS icons.
+- On hover: show tooltip with resource name and type.

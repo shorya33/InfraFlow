@@ -1,0 +1,108 @@
+Got it 👍 You only want a **logic prompt** (not UI code, not styling) — just the rules/logic that Replit should follow when building this system. Here’s a clean version:
+
+---
+
+# 🔹 Logic Prompt for Replit (Infra JSON Generator)
+
+I want you to implement the **logic system** for a visual infrastructure builder.
+The system uses **nodes (resources)** and **edges (dependencies)**, and outputs a **JSON definition**.
+
+---
+
+## 🧩 Node Rules
+
+1. Each **node** represents a resource (e.g., VPC, Subnet, EC2, RDS, S3).
+2. Every node has:
+
+   * `id` → unique string
+   * `type` → resource type (`aws_vpc`, `aws_subnet`, `aws_instance`, etc.)
+   * `parent` → id of its parent (if any)
+   * `children` → list of ids of contained resources
+   * `data` → resource-specific configuration (CIDR, AMI, instance\_type, etc.)
+
+---
+
+## 🔗 Edge Rules
+
+1. Edges represent **dependencies** between resources.
+2. An edge has:
+
+   * `id` → unique string
+   * `source` → resource id
+   * `target` → resource id
+   * `type` → always `"dependency"`
+3. Dependencies define **provisioning order**:
+
+   * Example: EC2 → IAM Role means IAM Role must be created before EC2.
+
+---
+
+## 📐 Hierarchy Rules
+
+1. **VPC**
+
+   * Can contain Subnets, Security Groups, Internet Gateways.
+2. **Subnet**
+
+   * Must belong to exactly one VPC.
+   * Can contain EC2, RDS, ELB.
+3. **Services (EC2, RDS, ELB)**
+
+   * Must belong to a Subnet.
+4. **Global Resources (S3, IAM Role)**
+
+   * Do not require Subnet or VPC parent.
+5. If a parent is deleted, all children and edges are deleted.
+
+---
+
+## ⚙️ JSON Structure
+
+The JSON output always has two arrays:
+
+```json
+{
+  "nodes": [ { "id": "...", "type": "...", "parent": "...", "children": [], "data": {} } ],
+  "edges": [ { "id": "...", "source": "...", "target": "...", "type": "dependency" } ]
+}
+```
+
+---
+
+## 📏 Logic Behaviors
+
+* Adding a node creates a new JSON object in `nodes`.
+* Dragging a node into a container sets its `parent` and updates `children`.
+* Adding an edge creates a dependency entry in `edges`.
+* Editing a node updates its `data`.
+* Deleting a node removes it and its children + edges.
+* Export always generates full JSON.
+
+---
+
+## ✅ Example
+
+Input actions:
+
+* Create VPC → Create Subnet inside VPC → Create EC2 inside Subnet → Connect EC2 to IAM Role
+
+JSON Output:
+
+```json
+{
+  "nodes": [
+    { "id": "vpc1", "type": "aws_vpc", "parent": null, "children": ["subnet1"], "data": {"cidr_block": "10.0.0.0/16"} },
+    { "id": "subnet1", "type": "aws_subnet", "parent": "vpc1", "children": ["ec2_1"], "data": {"subnet_type": "public"} },
+    { "id": "ec2_1", "type": "aws_instance", "parent": "subnet1", "children": [], "data": {"ami": "ami-123", "instance_type": "t2.micro"} },
+    { "id": "iam1", "type": "aws_iam_role", "parent": null, "children": [], "data": {"role": "ec2_access"} }
+  ],
+  "edges": [
+    { "id": "edge1", "source": "ec2_1", "target": "iam1", "type": "dependency" }
+  ]
+}
+```
+
+---
+
+⚡ Use these **rules + schema** to implement how the system manages nodes, edges, dependencies, and JSON generation.
+
